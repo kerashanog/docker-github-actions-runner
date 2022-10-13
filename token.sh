@@ -11,7 +11,16 @@ fi
 
 API_VERSION=v3
 API_HEADER="Accept: application/vnd.github.${API_VERSION}+json"
-AUTH_HEADER="Authorization: token ${ACCESS_TOKEN}"
+# IF ACCESS_TOKEN is set (length is non zero) then
+if [[ -n "${ACCESS_TOKEN}" ]]; then
+  AUTH_HEADER="Authorization: token ${ACCESS_TOKEN}"
+fi
+if [[ -n "${APP_ID}" ]] && [[ -n "${APP_PRIVATE_KEY}" ]]; then
+  _TOKEN=$(APP_ID="${APP_ID}" APP_PRIVATE_KEY="${APP_PRIVATE_KEY}" bash /github_app.sh)
+  APP_TOKEN=$(echo "${_TOKEN}" | jq -r .token)
+  AUTH_HEADER="Authorization: Bearer ${APP_TOKEN}"
+fi
+
 CONTENT_LENGTH_HEADER="Content-Length: 0"
 
 case ${RUNNER_SCOPE} in
